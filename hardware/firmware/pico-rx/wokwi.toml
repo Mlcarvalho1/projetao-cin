@@ -1,0 +1,6 @@
+# Wokwi simulator config para o receptor da fazenda (RX).
+# Aponta pro UF2 gerado pelo PlatformIO em `pio run -e pico-rx`.
+[wokwi]
+version = 1
+firmware = ".pio/build/pico-rx/firmware.uf2"
+elf = ".pio/build/pico-rx/firmware.elf"

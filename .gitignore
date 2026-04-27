@@ -40,11 +40,13 @@ Thumbs.db
 *.swp
 *.swo
 
-# Python (hardware/, futuramente)
-**/__pycache__/
-**/*.py[cod]
-**/.venv/
-**/venv/
+# PlatformIO (hardware/firmware)
+**/.pio/
+**/.pioenvs/
+**/.piolibdeps/
+**/compile_commands.json
+hardware/firmware/**/include/secrets.h
+hardware/firmware/**/src/secrets.h
 
 # Docker
 **/.docker-data/

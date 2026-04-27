@@ -1,0 +1,18 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+.vscode/
+.clangd/
+compile_commands.json
+
+# Saída de build
+*.uf2
+*.elf
+*.bin
+*.hex
+*.map
+
+# Segredos por device — copiar de secrets.h.example
+**/include/secrets.h
+**/src/secrets.h
