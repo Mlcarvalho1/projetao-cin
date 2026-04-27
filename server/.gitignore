@@ -1,0 +1,43 @@
+# compiled output
+dist
+build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+
+# IDE / editor
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Tests
+coverage
+*.lcov
+.nyc_output
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Turbo
+.turbo
+
+# TypeScript
+*.tsbuildinfo
