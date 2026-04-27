@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaSense — Irrigação Inteligente no Semiárido</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Literata:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --soil: #2D1A0E;
+    --clay: #8B4513;
+    --sand: #C8965A;
+    --sun: #F5A623;
+    --sky: #4A9BB8;
+    --water: #2E86AB;
+    --water-deep: #1A5276;
+    --leaf: #4A7C59;
+    --leaf-bright: #6BBF72;
+    --cream: #F7F0E6;
+    --smoke: #E8DDD0;
+    --accent: #E8610A;
+    --text: #1C0D00;
+    --muted: #7A5C44;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Literata', Georgia, serif;
+    background: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(247, 240, 230, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(139,69,19,0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--water-deep);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .nav-links a:hover { background: var(--smoke); color: var(--text); }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 4rem 4rem 5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--soil);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 .highlight {
+    color: var(--water);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 400px;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 0.25rem;
+    max-width: 100px;
+    line-height: 1.4;
+  }
+
+  .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    padding: 0.85rem 1.75rem;
+    border-radius: 3px;
+    transition: all 0.25s;
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+  }
+  .btn-primary {
+    background: var(--water-deep);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--water);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(46,134,171,0.35);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--soil);
+    border: 1.5px solid var(--clay);
+  }
+  .btn-outline:hover {
+    background: var(--smoke);
+    transform: translateY(-2px);
+  }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-visual {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 30% 40%, rgba(74,155,184,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(74,124,89,0.2) 0%, transparent 50%),
+      linear-gradient(160deg, #D4956A 0%, #8B4513 50%, #2D1A0E 100%);
+  }
+
+  .hero-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.6;
+  }
+
+  .drop {
+    animation: drip 3s ease-in-out infinite;
+  }
+  .drop:nth-child(2) { animation-delay: 0.8s; }
+  .drop:nth-child(3) { animation-delay: 1.6s; }
+
+  @keyframes drip {
+    0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.7; }
+    50% { transform: translateY(8px) scaleY(1.1); opacity: 1; }
+  }
+
+  .pulse-ring {
+    animation: pulse 2.5s ease-out infinite;
+    transform-origin: center;
+  }
+  @keyframes pulse {
+    0% { opacity: 0.8; r: 20; }
+    100% { opacity: 0; r: 60; }
+  }
+
+  .soil-line {
+    animation: wave 4s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes wave {
+    0%, 100% { d: path("M0,200 Q100,180 200,200 Q300,220 400,200 L400,280 L0,280 Z"); }
+    50% { d: path("M0,200 Q100,220 200,200 Q300,180 400,200 L400,280 L0,280 Z"); }
+  }
+
+  .quest-badge {
+    position: absolute;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(247,240,230,0.5);
+    writing-mode: vertical-lr;
+    right: 2rem;
+    bottom: 3rem;
+  }
+
+  /* ─── SECTIONS ─── */
+  section {
+    padding: 6rem 5rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-tag::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--soil);
+    margin-bottom: 1rem;
+  }
+
+  .section-intro {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 620px;
+    margin-bottom: 3rem;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--sand), transparent);
+    margin: 0 5rem;
+  }
+
+  /* ─── Q1 GRID ─── */
+  .q1-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--smoke);
+    border-radius: 4px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(45,26,14,0.1);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .card.water::before { background: var(--water); }
+  .card.leaf::before { background: var(--leaf-bright); }
+  .card.sun::before { background: var(--sun); }
+  .card.soil::before { background: var(--clay); }
+
+  .card-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    color: var(--soil);
+  }
+  .card p {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  /* ─── PERSONAS ─── */
+  .persona-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .persona-card {
+    background: var(--soil);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .persona-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .persona-avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--clay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--sand);
+  }
+  .persona-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--cream);
+    margin-bottom: 0.25rem;
+  }
+  .persona-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--sand);
+    margin-bottom: 1rem;
+  }
+  .persona-quote {
+    font-style: italic;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--smoke);
+    border-left: 2px solid var(--sun);
+    padding-left: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .persona-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--smoke);
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+  }
+
+  /* ─── ODS PILLS ─── */
+  .ods-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .ods-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: white;
+    border: 1px solid var(--smoke);
+    padding: 0.6rem 1rem;
+    border-radius: 3px;
+  }
+  .ods-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+  .ods-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ─── Q2 PAINS ─── */
+  .pains-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .pain-card {
+    border: 1.5px solid var(--smoke);
+    border-radius: 4px;
+    padding: 1.75rem;
+    position: relative;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .pain-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .pain-card.active { border-color: var(--accent); background: #FFF8F2; }
+
+  .pain-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 3rem;
+    color: var(--smoke);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .pain-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--soil);
+    margin-bottom: 0.5rem;
+  }
+  .pain-desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .pain-severity {
+    margin-top: 1rem;
+    display: flex;
+    gap: 3px;
+  }
+  .severity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--smoke);
+  }
+  .severity-dot.filled { background: var(--accent); }
+
+  /* ─── GAMBIARRAS ─── */
+  .gambiarra-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .gambiarra-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: var(--cream);
+    border: 1px solid var(--smoke);
+    padding: 1rem 1.25rem;
+    border-radius: 3px;
+  }
+  .gambiarra-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .gambiarra-text {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .gambiarra-text strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--soil);
+    margin-bottom: 0.2rem;
+  }
+
+  /* ─── Q3 SIMILARES TABLE ─── */
+  .similares-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 3rem;
+    font-size: 0.88rem;
+  }
+  .similares-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1.5px solid var(--smoke);
+    white-space: nowrap;
+  }
+  .similares-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--smoke);
+    color: var(--muted);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .similares-table tr:last-child td { border-bottom: none; }
+  .similares-table tr:hover td { background: var(--cream); }
+
+  .solution-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--soil);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .check { color: var(--leaf-bright); font-weight: bold; }
+  .cross { color: #C0392B; font-weight: bold; }
+
+  /* ─── REFERÊNCIAS INSPIRAÇÕES ─── */
+  .inspo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .inspo-card {
+    background: white;
+    border: 1px solid var(--smoke);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+  }
+  .inspo-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(45,26,14,0.08);
+  }
+  .inspo-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .inspo-what {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .inspo-desc {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  /* ─── LACUNA ─── */
+  .lacuna-box {
+    background: var(--water-deep);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .lacuna-box::before {
+    content: '💧';
+    position: absolute;
+    font-size: 12rem;
+    opacity: 0.05;
+    right: -2rem;
+    bottom: -3rem;
+    line-height: 1;
+  }
+  .lacuna-box .section-tag { color: var(--sky); }
+  .lacuna-box .section-tag::before { background: var(--sky); }
+  .lacuna-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  .lacuna-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(247,240,230,0.75);
+    max-width: 680px;
+    margin-bottom: 2rem;
+  }
+  .lacuna-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .feature-pill {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .feature-pill::before { content: '→'; color: var(--sky); }
+
+  /* ─── MARKET NUMBERS ─── */
+  .market-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .market-card {
+    text-align: center;
+    padding: 2rem;
+    border: 1px solid var(--smoke);
+    border-radius: 4px;
+    background: white;
+  }
+  .market-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: var(--water-deep);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .market-label {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 3rem;
+    border-top: 1px solid var(--smoke);
+    background: var(--soil);
+    color: var(--muted);
+  }
+  footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sand);
+    opacity: 0.6;
+  }
+
+  /* ─── SCROLL ANIMATIONS ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── SECTION BG STRIPS ─── */
+  .bg-alt { background: var(--cream); }
+  .bg-white { background: white; }
+
+  .section-wrapper-alt {
+    background: var(--smoke);
+    padding: 1px 0;
+  }
+  .section-wrapper-dark {
+    background: var(--soil);
+    padding: 1px 0;
+  }
+  .section-wrapper-dark .section-title { color: var(--cream); }
+  .section-wrapper-dark .section-intro { color: var(--sand); }
+  .section-wrapper-dark .divider { background: linear-gradient(90deg, transparent, var(--clay), transparent); }
+
+  /* ─── PROGRESS DOTS NAV ─── */
+  .progress-nav {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .progress-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--sand);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .progress-dot.active {
+    background: var(--water);
+    transform: scale(1.5);
+  }
+
+  /* ─── ACCORDION (similares) ─── */
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: white;
+    border: 1px solid var(--smoke);
+    border-radius: 3px;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--soil);
+  }
+  .acc-header:hover { border-color: var(--sky); }
+  .acc-header.open { border-color: var(--water); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .acc-arrow { transition: transform 0.3s; color: var(--muted); }
+  .acc-header.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body {
+    display: none;
+    padding: 1.25rem 1.5rem;
+    background: #FAFAF8;
+    border: 1px solid var(--smoke);
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    margin-bottom: 0.5rem;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+  .acc-body.open { display: block; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 6rem 2rem 3rem; }
+    section { padding: 4rem 2rem; }
+    .divider { margin: 0 2rem; }
+    .q1-grid, .persona-row, .pains-grid, .inspo-grid, .market-row, .gambiarra-list { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    nav { padding: 0.75rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero-left { padding: 5rem 1.25rem 2.5rem; }
+    .hero-stats { gap: 1rem; flex-wrap: wrap; }
+    .stat-num { font-size: 1.6rem; }
+    .btn-group { flex-direction: column; }
+    .btn { text-align: center; width: 100%; }
+    section { padding: 2.5rem 1.25rem; }
+    .divider { margin: 0 1.25rem; }
+    .lacuna-box { padding: 2rem 1.25rem; }
+    .lacuna-title { font-size: 1.4rem; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .similares-table { min-width: 540px; }
+    .progress-nav { display: none; }
+    .ods-row { gap: 0.5rem; }
+    .pain-num { font-size: 2rem; }
+    .market-num { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Aqua<span>Sense</span></div>
+  <ul class="nav-links">
+    <li><a href="#q1">Quest 1</a></li>
+    <li><a href="#q2">Quest 2</a></li>
+    <li><a href="#q3">Quest 3</a></li>
+    <li><a href="#lacuna">Oportunidade</a></li>
+  </ul>
+</nav>
+
+<!-- PROGRESS DOTS -->
+<div class="progress-nav" id="progressNav">
+  <div class="progress-dot active" data-section="hero"></div>
+  <div class="progress-dot" data-section="q1"></div>
+  <div class="progress-dot" data-section="q2"></div>
+  <div class="progress-dot" data-section="q3"></div>
+  <div class="progress-dot" data-section="lacuna"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Projetão CIn · Quest 1–3</div>
+    <h1>
+      Água que
+      <span class="highlight">não pode</span>
+      ser desperdiçada.
+    </h1>
+    <p class="hero-sub">
+      16 mil produtores rurais do Vale do São Francisco irrigam na base da experiência —
+      que deixou de funcionar com o clima atual.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">40%</span>
+        <span class="stat-label">da água desperdiçada sem controle</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">16k</span>
+        <span class="stat-label">produtores afetados no Vale</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">70a</span>
+        <span class="stat-label">seca mais severa em 70 anos (2024)</span>
+      </div>
+    </div>
+    <div class="btn-group">
+      <a href="#q1" class="btn btn-primary">Ver análise completa</a>
+      <a href="#lacuna" class="btn btn-outline">Pular para a oportunidade</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-visual"></div>
+    <svg class="hero-svg" viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
+      <!-- soil layers -->
+      <rect x="0" y="420" width="500" height="280" fill="#2D1A0E" opacity="0.8"/>
+      <rect x="0" y="380" width="500" height="60" fill="#8B4513" opacity="0.6"/>
+      <rect x="0" y="340" width="500" height="50" fill="#C8965A" opacity="0.4"/>
+
+      <!-- roots -->
+      <path d="M250,340 Q230,380 210,420 Q195,460 200,500" stroke="#4A7C59" stroke-width="2" fill="none" opacity="0.5"/>
+      <path d="M250,340 Q270,380 290,420 Q305,460 300,490" stroke="#4A7C59" stroke-width="2" fill="none" opacity="0.5"/>
+      <path d="M250,350 Q240,400 220,440 Q205,470 215,510" stroke="#4A7C59" stroke-width="1.5" fill="none" opacity="0.35"/>
+      <path d="M250,350 Q260,400 280,440 Q295,470 285,510" stroke="#4A7C59" stroke-width="1.5" fill="none" opacity="0.35"/>
+
+      <!-- plant stem -->
+      <path d="M250,340 Q245,280 248,200 Q250,140 250,80" stroke="#4A7C59" stroke-width="3" fill="none"/>
+      <!-- leaves -->
+      <ellipse cx="220" cy="180" rx="40" ry="18" fill="#4A7C59" opacity="0.7" transform="rotate(-30 220 180)"/>
+      <ellipse cx="280" cy="220" rx="38" ry="16" fill="#6BBF72" opacity="0.6" transform="rotate(25 280 220)"/>
+      <ellipse cx="225" cy="260" rx="32" ry="14" fill="#4A7C59" opacity="0.6" transform="rotate(-20 225 260)"/>
+
+      <!-- sensor node -->
+      <circle cx="250" cy="400" r="14" fill="#2E86AB" opacity="0.9"/>
+      <circle cx="250" cy="400" r="8" fill="white" opacity="0.9"/>
+      <circle cx="250" cy="400" r="3" fill="#2E86AB"/>
+      <!-- pulse rings -->
+      <circle class="pulse-ring" cx="250" cy="400" r="20" fill="none" stroke="#2E86AB" stroke-width="1.5" opacity="0.8"/>
+      <circle class="pulse-ring" cx="250" cy="400" r="20" fill="none" stroke="#2E86AB" stroke-width="1.5" opacity="0.6" style="animation-delay:0.8s"/>
+
+      <!-- water drops -->
+      <g class="drop" opacity="0.7">
+        <ellipse cx="180" cy="120" rx="6" ry="9" fill="#4A9BB8"/>
+      </g>
+      <g class="drop" opacity="0.7">
+        <ellipse cx="320" cy="90" rx="5" ry="8" fill="#4A9BB8"/>
+      </g>
+      <g class="drop" opacity="0.5">
+        <ellipse cx="200" cy="60" rx="4" ry="6" fill="#4A9BB8"/>
+      </g>
+
+      <!-- signal waves from sensor -->
+      <path d="M270,390 Q310,375 340,380" stroke="#2E86AB" stroke-width="1.5" fill="none" opacity="0.4" stroke-dasharray="4,3"/>
+      <path d="M275,400 Q320,395 360,400" stroke="#2E86AB" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="4,3"/>
+    </svg>
+    <span class="quest-badge">Irrigação Inteligente · Semiárido Nordestino</span>
+  </div>
+</div>
+
+<!-- ─── QUEST 1 ─── -->
+<div id="q1">
+  <section>
+    <div class="reveal">
+      <div class="section-tag">Quest 1 · Temáticas</div>
+      <h2 class="section-title">O problema é real —<br>e tem escala.</h2>
+      <p class="section-intro">
+        Propriedades sem controle inteligente desperdiçam água e fertilizante ao mesmo tempo.
+        A seca de 2024 foi a mais severa em 70 anos, e a experiência acumulada pelo produtor
+        deixou de ser guia confiável.
+      </p>
+    </div>
+
+    <div class="q1-grid reveal">
+      <div class="card water">
+        <span class="card-icon">💧</span>
+        <h3>Recurso sob pressão extrema</h3>
+        <p>O Rio São Francisco opera sob crescente pressão de captação. A seca de 2024, a mais severa em 70 anos, reduziu drasticamente a disponibilidade hídrica para os perímetros irrigados do Vale.</p>
+      </div>
+      <div class="card leaf">
+        <span class="card-icon">🌱</span>
+        <h3>40% de água desperdiçada</h3>
+        <p>Segundo a Embrapa, propriedades sem controle inteligente desperdiçam até 40% da água usada em irrigação. Irrigar em excesso também lava fertilizante para abaixo da zona radicular.</p>
+      </div>
+      <div class="card sun">
+        <span class="card-icon">🌡</span>
+        <h3>Experiência que deixou de funcionar</h3>
+        <p>O produtor médio toma decisões de irrigação baseado em experiência acumulada — que não consegue mais acompanhar a variabilidade climática crescente do Nordeste.</p>
+      </div>
+      <div class="card soil">
+        <span class="card-icon">👨‍🌾</span>
+        <h3>16 mil produtores sem acesso</h3>
+        <p>Os produtores de médio porte do Vale do São Francisco não têm acesso a sistemas de monitoramento. Soluções existentes custam de R$15k a R$80k — fora do alcance da maioria.</p>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="section-tag" style="margin-bottom:1.25rem">ODS Relacionadas</div>
+      <div class="ods-row">
+        <div class="ods-pill">
+          <span class="ods-num" style="color:#DDA63A;">2</span>
+          <div class="ods-text">Fome Zero &amp;<br>Agricultura Sustentável</div>
+        </div>
+        <div class="ods-pill">
+          <span class="ods-num" style="color:#26BDE2;">6</span>
+          <div class="ods-text">Água Potável &amp;<br>Saneamento</div>
+        </div>
+        <div class="ods-pill">
+          <span class="ods-num" style="color:#3F7E44;">13</span>
+          <div class="ods-text">Ação contra a<br>Mudança do Clima</div>
+        </div>
+        <div class="ods-pill">
+          <span class="ods-num" style="color:#FD9D24;">8</span>
+          <div class="ods-text">Trabalho Decente &amp;<br>Crescimento Econômico</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<!-- PERSONAS -->
+<section>
+  <div class="reveal">
+    <div class="section-tag">Personas</div>
+    <h2 class="section-title">Quem vive esse problema todo dia.</h2>
+    <p class="section-intro">Dois perfis centrais identificados no campo: o produtor que decide pela experiência e a técnica que não tem ferramenta para ajudá-lo.</p>
+  </div>
+  <div class="persona-row reveal">
+    <div class="persona-card">
+      <div class="persona-avatar">👨‍🌾</div>
+      <div class="persona-name">Seu Zacarias, 54 anos</div>
+      <div class="persona-role">Produtor · Perímetro Nilo Coelho, Petrolina</div>
+      <div class="persona-quote">
+        "Aprendi com meu pai quando irrigar. Mas esse clima de hoje não é o que ele conhecia."
+      </div>
+      <p style="font-size:0.85rem;color:var(--smoke);line-height:1.6;">
+        Cultiva manga e uva em 12 hectares. Usa calendário fixo de irrigação e "aperta a terra" para sentir a umidade. Perdeu 15% da safra em 2023 por estresse hídrico mal calibrado. Tem smartphone, usa só WhatsApp.
+      </p>
+      <div class="persona-tags">
+        <span class="tag">Gotejamento</span>
+        <span class="tag">Calendário fixo</span>
+        <span class="tag">Médio porte</span>
+        <span class="tag">Baixo letramento digital</span>
+      </div>
+    </div>
+    <div class="persona-card" style="background:var(--water-deep)">
+      <div class="persona-avatar" style="background:var(--water);border-color:var(--sky);">👩‍💼</div>
+      <div class="persona-name">Técnica Renata, 32 anos</div>
+      <div class="persona-role">Engenheira Agrônoma · CODEVASF</div>
+      <div class="persona-quote">
+        "Sei que eles irrigam errado, mas não tenho nada acessível para recomendar que eles consigam usar."
+      </div>
+      <p style="font-size:0.85rem;color:var(--smoke);line-height:1.6;">
+        Atende ~200 produtores por mês. Usa planilhas para acompanhar projetos. Conhece os dados de evapotranspiração, mas não tem interface para traduzir isso em recomendação prática ao produtor.
+      </p>
+      <div class="persona-tags">
+        <span class="tag">CODEVASF</span>
+        <span class="tag">Assistência técnica</span>
+        <span class="tag">Intermediadora</span>
+        <span class="tag">Alta frustração</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-wrapper-alt">
+<!-- ─── QUEST 2 ─── -->
+<section id="q2">
+  <div class="reveal">
+    <div class="section-tag">Quest 2 · Oportunidades</div>
+    <h2 class="section-title">Três dores. Uma raiz.</h2>
+    <p class="section-intro">
+      Após observar produtores em campo e conversar com técnicos da CODEVASF e Embrapa,
+      identificamos os problemas mais urgentes. Clique em cada um para ver os detalhes.
+    </p>
+  </div>
+
+  <div class="pains-grid reveal">
+    <div class="pain-card active" onclick="togglePain(this)">
+      <div class="pain-num">01</div>
+      <div class="pain-title">Decisão de irrigação sem dados</div>
+      <div class="pain-desc">
+        O produtor decide quando e quanto irrigar sem sensor nem dado automatizado.
+        Resultado: sobre ou sub-irrigação sistemática.
+      </div>
+      <div class="pain-severity">
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent);margin-left:0.5rem;text-transform:uppercase;letter-spacing:0.1em;">Crítico</span>
+      </div>
+    </div>
+    <div class="pain-card" onclick="togglePain(this)">
+      <div class="pain-num">02</div>
+      <div class="pain-title">Ausência de alerta preventivo</div>
+      <div class="pain-desc">
+        O produtor não recebe aviso antes que a planta entre em estresse hídrico.
+        O dano só é visível quando já há impacto na colheita.
+      </div>
+      <div class="pain-severity">
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot"></div>
+        <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--sun);margin-left:0.5rem;text-transform:uppercase;letter-spacing:0.1em;">Alto</span>
+      </div>
+    </div>
+    <div class="pain-card" onclick="togglePain(this)">
+      <div class="pain-num">03</div>
+      <div class="pain-title">Perda dupla: água + fertilizante</div>
+      <div class="pain-desc">
+        Irrigação excessiva lava nutrientes abaixo da zona radicular.
+        Não há ferramenta que conecte lâmina d'água com eficiência dos insumos.
+      </div>
+      <div class="pain-severity">
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot filled"></div>
+        <div class="severity-dot"></div>
+        <div class="severity-dot"></div>
+        <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--sky);margin-left:0.5rem;text-transform:uppercase;letter-spacing:0.1em;">Moderado</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="section-tag" style="margin-bottom:1.25rem">Gambiarras identificadas em campo</div>
+    <div class="gambiarra-list">
+      <div class="gambiarra-item">
+        <div class="gambiarra-icon">🤌</div>
+        <div class="gambiarra-text">
+          <strong>Dedo no solo</strong>
+          Enfiar o dedo na terra para sentir se está úmida. Principal "sensor" do produtor médio.
+        </div>
+      </div>
+      <div class="gambiarra-item">
+        <div class="gambiarra-icon">🍼</div>
+        <div class="gambiarra-text">
+          <strong>Garrafa PET enterrada</strong>
+          Usada artesanalmente como indicador de umidade do solo por produtores criativos.
+        </div>
+      </div>
+      <div class="gambiarra-item">
+        <div class="gambiarra-icon">💬</div>
+        <div class="gambiarra-text">
+          <strong>Grupo de WhatsApp</strong>
+          "Vocês irrigaram hoje?" — decisão coletiva informal via grupo com outros produtores.
+        </div>
+      </div>
+      <div class="gambiarra-item">
+        <div class="gambiarra-icon">📅</div>
+        <div class="gambiarra-text">
+          <strong>Calendário da última chuva</strong>
+          Agendamento de irrigação baseado na data da última chuva, sem qualquer sensor.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="section-tag" style="margin-bottom:1.25rem">Escala de mercado</div>
+    <div class="market-row">
+      <div class="market-card">
+        <div class="market-num">16.000</div>
+        <div class="market-label">produtores rurais no Vale do São Francisco afetados diretamente</div>
+      </div>
+      <div class="market-card">
+        <div class="market-num">R$ 15k</div>
+        <div class="market-label">perda estimada por propriedade/safra em desperdício de água e insumo</div>
+      </div>
+      <div class="market-card">
+        <div class="market-num">R$ 2,4bi</div>
+        <div class="market-label">economia potencial com irrigação eficiente só no Nordeste (ABAG)</div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ─── QUEST 3 ─── -->
+<section id="q3">
+  <div class="reveal">
+    <div class="section-tag">Quest 3 · Análise de Similares</div>
+    <h2 class="section-title">O que já existe —<br>e o que falta.</h2>
+    <p class="section-intro">
+      Mapeamos concorrentes reais (soluções que o produtor já usa hoje) e referências inspiradoras
+      (outros domínios que entregam valor de formas que queremos emular).
+    </p>
+  </div>
+
+  <!-- Accordion concorrentes -->
+  <div class="reveal" style="margin-bottom:2rem">
+    <div class="section-tag" style="margin-bottom:1.25rem">Concorrentes</div>
+
+    <div class="acc-header open" onclick="toggleAcc(this)">
+      📅 Calendário Fixo CODEVASF
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body open">
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Como funciona:</strong> Cronograma fixo entregue no início da safra, baseado em cultura e mês do ano.<br><br>
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Limitação crítica:</strong> Não considera variação climática real nem o estado atual do solo. O produtor segue o calendário mesmo durante chuvas ou secas atípicas.
+    </div>
+
+    <div class="acc-header" onclick="toggleAcc(this)">
+      🔧 Tensiômetro Manual
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Como funciona:</strong> Mede a tensão de água no solo por leitura manual periódica.<br><br>
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Limitação crítica:</strong> Requer disciplina de leitura constante, não gera alertas automáticos, e é frequentemente mal calibrado ou abandonado.
+    </div>
+
+    <div class="acc-header" onclick="toggleAcc(this)">
+      📱 Apps de Previsão do Tempo
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Como funciona:</strong> Climatempo, INMET — dados meteorológicos gerais consultados pelo produtor.<br><br>
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Limitação crítica:</strong> Não é específico para decisão de irrigação. Não integra dados de solo. Não traduz a previsão em "irrigue X mm hoje".
+    </div>
+
+    <div class="acc-header" onclick="toggleAcc(this)">
+      🏭 Sistemas Profissionais (AgroView, CropX, Netafim)
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Como funciona:</strong> Sensores IoT + dashboards completos, automação de válvulas, integração com pivot.<br><br>
+      <strong style="color:var(--soil);font-family:'Syne',sans-serif;">Limitação crítica:</strong> Custo entre R$15.000 e R$80.000. Interface complexa, frequentemente em inglês. Sem suporte local para culturas do Vale. Completamente fora do alcance do produtor de médio porte.
+    </div>
+  </div>
+
+  <!-- Referências -->
+  <div class="reveal">
+    <div class="section-tag" style="margin-bottom:1.25rem">Referências &amp; Inspirações</div>
+    <div class="inspo-grid">
+      <div class="inspo-card">
+        <div class="inspo-logo" style="color:var(--accent)">Waze</div>
+        <div class="inspo-what">Decisão no momento certo</div>
+        <div class="inspo-desc">Recomendação em tempo real baseada em dados contextuais. Entrega a ação certa, no momento certo, no lugar certo — sem exigir que o usuário interprete dados brutos.</div>
+      </div>
+      <div class="inspo-card">
+        <div class="inspo-logo" style="color:var(--water)">FreeStyle Libre</div>
+        <div class="inspo-what">Monitoramento passivo + alerta</div>
+        <div class="inspo-desc">O usuário não precisa "checar" — é avisado quando algo sai do normal. Sensor contínuo, alerta proativo. Modelo: "o sensor vigia, você age quando precisa".</div>
+      </div>
+      <div class="inspo-card">
+        <div class="inspo-logo" style="color:var(--leaf)">iFood</div>
+        <div class="inspo-what">Simplicidade para todos</div>
+        <div class="inspo-desc">Interface extremamente simples para público com baixo letramento digital. Toda a complexidade fica no backend. O usuário só vê o que precisa ver.</div>
+      </div>
+      <div class="inspo-card">
+        <div class="inspo-logo" style="color:var(--sun)">Duolingo</div>
+        <div class="inspo-what">Hábito sem esforço</div>
+        <div class="inspo-desc">Notificações e micro-interações que mantêm o usuário engajado sem demandar esforço cognitivo alto. O sistema vem até o usuário, não o contrário.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- O que falta -->
+  <div class="reveal" style="margin-top:2rem">
+    <div class="section-tag" style="margin-bottom:1.25rem">O que nenhum concorrente entrega</div>
+    <div class="table-scroll">
+    <table class="similares-table">
+      <thead>
+        <tr>
+          <th>Valor</th>
+          <th>Calendário CODEVASF</th>
+          <th>Tensiômetro</th>
+          <th>Apps de Tempo</th>
+          <th>Sistemas Pro</th>
+          <th style="color:var(--water-deep)">Oportunidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="solution-name">Custo acessível (&lt;R$500)</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check" style="color:var(--water-deep)">✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="solution-name">Alerta via WhatsApp</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check" style="color:var(--water-deep)">✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="solution-name">Recomendação prescritiva simples</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check" style="color:var(--water-deep)">✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="solution-name">Dados reais do solo em tempo real</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check">✓</span> (manual)</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check" style="color:var(--water-deep)">✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="solution-name">Interface para baixo letramento digital</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check" style="color:var(--water-deep)">✓</span></td>
+        </tr>
+        <tr>
+          <td><span class="solution-name">Suporte local em português</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check" style="color:var(--water-deep)">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LACUNA ─── -->
+<div style="background:var(--cream);padding:0 5rem 6rem;" id="lacuna">
+  <div class="lacuna-box reveal">
+    <div class="section-tag">Oportunidade Identificada</div>
+    <div class="lacuna-title">O FreeStyle Libre da irrigação.<br>Para o semiárido.</div>
+    <div class="lacuna-desc">
+      Existe espaço para uma solução de monitoramento de irrigação de baixo custo, com alertas
+      via WhatsApp e recomendações prescritivas simples — voltada para o produtor médio que já
+      tem smartphone, mas não tem budget nem letramento para sistemas complexos.
+      <br><br>
+      O sensor vigia. O produtor age quando precisa. A água chega onde deve.
+    </div>
+    <div class="lacuna-features">
+      <div class="feature-pill">Sensor de solo low-cost</div>
+      <div class="feature-pill">Alerta via WhatsApp</div>
+      <div class="feature-pill">"Irrigue X mm hoje às 6h"</div>
+      <div class="feature-pill">Sem dashboard complexo</div>
+      <div class="feature-pill">Assinatura mensal acessível</div>
+      <div class="feature-pill">Suporte local em PT</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>AquaSense · Projetão CIn UFPE · Quest 1–3 · Irrigação Inteligente no Semiárido</p>
+</footer>
+
+<script>
+  // ─── REVEAL ON SCROLL ───
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // ─── PROGRESS DOTS ───
+  const sections = ['hero','q1','q2','q3','lacuna'];
+  const dots = document.querySelectorAll('.progress-dot');
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      document.getElementById(sections[i]).scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = sections.indexOf(e.target.id);
+        dots.forEach(d => d.classList.remove('active'));
+        if (idx >= 0) dots[idx].classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+
+  // ─── PAIN CARDS TOGGLE ───
+  function togglePain(card) {
+    document.querySelectorAll('.pain-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+  }
+
+  // ─── ACCORDION ───
+  function toggleAcc(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    document.querySelectorAll('.acc-header').forEach(h => {
+      h.classList.remove('open');
+      h.nextElementSibling.classList.remove('open');
+    });
+    if (!isOpen) {
+      header.classList.add('open');
+      body.classList.add('open');
+    }
+  }
+</script>
+</body>
+</html>
