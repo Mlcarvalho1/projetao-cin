@@ -1,0 +1,16 @@
+{
+  "name": "aquasense",
+  "private": true,
+  "packageManager": "pnpm@10.20.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "dev:client": "pnpm --filter client dev",
+    "dev:server": "pnpm --filter server start:dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  }
+}

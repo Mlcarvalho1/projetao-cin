@@ -1,0 +1,51 @@
+# Node / pnpm
+**/node_modules/
+**/dist/
+**/build/
+**/.next/
+**/.turbo/
+**/.cache/
+**/coverage/
+**/*.tsbuildinfo
+
+# Per-package pnpm lockfiles (workspace uses the root pnpm-lock.yaml)
+client/pnpm-lock.yaml
+server/pnpm-lock.yaml
+
+# Vite
+**/dist-ssr/
+**/*.local
+
+# Logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/pnpm-debug.log*
+**/lerna-debug.log*
+**/logs/
+
+# Env
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example
+
+# Editor / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python (hardware/, futuramente)
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+
+# Docker
+**/.docker-data/
+postgres-data/
