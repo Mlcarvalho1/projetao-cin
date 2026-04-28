@@ -2,19 +2,53 @@
   "version": 1,
   "author": "AquaSense",
   "editor": "wokwi",
+  "_comment": "Wokwi ainda nao tem parte para rpipico2w; usa wokwi-pi-pico-w como aproximacao (mesmo footprint ADC/WiFi).",
   "parts": [
     { "type": "wokwi-pi-pico-w", "id": "pico", "top": 0, "left": 0, "attrs": {} },
     {
+      "type": "wokwi-potentiometer",
+      "id": "pot_s1",
+      "top": -160,
+      "left": 250,
+      "attrs": { "value": "32768" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot_s2",
+      "top": -40,
+      "left": 250,
+      "attrs": { "value": "32768" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot_s3",
+      "top": 80,
+      "left": 250,
+      "attrs": { "value": "32768" }
+    },
+    {
       "type": "wokwi-text",
       "id": "lbl",
-      "top": -120,
-      "left": 0,
+      "top": -240,
+      "left": 250,
       "attrs": {
-        "text": "RX: WiFi connect, UDP listener (porta 4500), POST /readings",
+        "text": "RX MVP: sensores direto (S1=GP26, S2=GP27, S3=GP28) + WiFi POST /readings",
         "fontSize": "14"
       }
     }
   ],
-  "connections": [],
+  "connections": [
+    ["pot_s1:VCC", "pico:3V3", "red",   []],
+    ["pot_s1:GND", "pico:GND.1", "black", []],
+    ["pot_s1:SIG", "pico:GP26", "green", []],
+
+    ["pot_s2:VCC", "pico:3V3", "red",   []],
+    ["pot_s2:GND", "pico:GND.2", "black", []],
+    ["pot_s2:SIG", "pico:GP27", "green", []],
+
+    ["pot_s3:VCC", "pico:3V3", "red",   []],
+    ["pot_s3:GND", "pico:GND.3", "black", []],
+    ["pot_s3:SIG", "pico:GP28", "green", []]
+  ],
   "dependencies": {}
 }

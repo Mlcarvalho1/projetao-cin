@@ -1,6 +1,6 @@
-# Wokwi simulator config para o nó de campo (TX).
-# Aponta pro UF2 gerado pelo PlatformIO em `pio run -e pico-tx-wifi`.
+# Wokwi simulator config para o TX (placeholder até Etapa 6 / LoRa).
+# Aponta pro UF2 gerado pelo PlatformIO em `pio run -e pico-tx`.
 [wokwi]
 version = 1
-firmware = ".pio/build/pico-tx-wifi/firmware.uf2"
-elf = ".pio/build/pico-tx-wifi/firmware.elf"
+firmware = ".pio/build/pico-tx/firmware.uf2"
+elf = ".pio/build/pico-tx/firmware.elf"

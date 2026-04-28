@@ -1,4 +1,4 @@
-# Wokwi simulator config para o receptor da fazenda (RX).
+# Wokwi simulator config para o RX (device principal do MVP).
 # Aponta pro UF2 gerado pelo PlatformIO em `pio run -e pico-rx`.
 [wokwi]
 version = 1

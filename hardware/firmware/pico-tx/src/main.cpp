@@ -1,7 +1,10 @@
-// AquaSense — TX (nó de campo). Esqueleto da etapa 1: imprime FRAME_SIZE
-// e device_id no Serial pra confirmar que o build + lib aquasense_proto
-// estão linkando. Lógica de medição/transmissão entra na etapa 2+.
-#include <Arduino.h>
+// AquaSense — TX (Pico, sem WiFi). Placeholder pra Etapa 6 (LoRa).
+// Por enquanto só imprime FRAME_SIZE + device_id pra confirmar que o build
+// e a lib aquasense_proto continuam linkando no RP2040 sem WiFi.
+#include <cstdio>
+
+#include "pico/stdlib.h"
+#include "pico/unique_id.h"
 
 #include "aquasense/frame.h"
 #include "config.h"
@@ -11,35 +14,29 @@ namespace {
 void print_unique_id() {
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
-    Serial.print("device_id=");
+    printf("device_id=");
     for (size_t i = 0; i < sizeof(id.id); ++i) {
-        if (id.id[i] < 0x10) Serial.print('0');
-        Serial.print(id.id[i], HEX);
+        printf("%02x", id.id[i]);
     }
-    Serial.println();
+    printf("\n");
 }
 
 } // namespace
 
-void setup() {
-    Serial.begin(115200);
-    const uint32_t t0 = millis();
-    while (!Serial && millis() - t0 < 3000) {}
+int main() {
+    stdio_init_all();
+    sleep_ms(2000);
 
-    Serial.println();
-    Serial.println("aquasense pico-tx (MVP wifi/udp)");
-    Serial.printf("FRAME_SIZE=%u  PAYLOAD=%u  HMAC=%u  CRC=%u\n",
-                  unsigned(aquasense::FRAME_SIZE),
-                  unsigned(aquasense::PAYLOAD_SIZE),
-                  unsigned(aquasense::HMAC_TRUNC_SIZE),
-                  unsigned(aquasense::CRC_SIZE));
-    Serial.printf("sleep_seconds=%u\n",
-                  unsigned(aquasense::tx::config::SLEEP_SECONDS));
+    printf("\naquasense pico-tx (placeholder — Etapa 6: LoRa)\n");
+    printf("FRAME_SIZE=%u  PAYLOAD=%u\n",
+           unsigned(aquasense::FRAME_SIZE),
+           unsigned(aquasense::PAYLOAD_SIZE));
+    printf("sleep_seconds=%u\n",
+           unsigned(aquasense::tx::config::SLEEP_SECONDS));
     print_unique_id();
-}
 
-void loop() {
-    // TODO etapa 2: ler ADC dos 3 sensores + bateria, montar Frame, frame_pack,
-    //               WiFiUDP enviar para RX_HOST:UDP_PORT, retry, deepsleep.
-    delay(1000);
+    while (true) {
+        // TODO Etapa 6: ler ADC, frame_pack, transmitir via LoRa pro RX.
+        sleep_ms(1000);
+    }
 }
