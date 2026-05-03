@@ -5,31 +5,20 @@ export type HealthResponse = {
   timestamp: string;
 };
 
+export type Reading = {
+  id: number;
+  device_id: string;
+  humidity: number;
+  temperature_c: number;
+  soil_wet: boolean;
+  soil_moisture_pct: number;
+  ts: string;
+  received_at: string;
+};
+
 export type DashboardResponse = {
-  summary: {
-    soilMoisture: number;
-    soilMoistureUnit: string;
-    lastReadingAt: string;
-    activeSensors: number;
-    totalSensors: number;
-  };
-  weather: {
-    tempC: number;
-    humidity: number;
-    rainLast24hMm: number;
-    etoMmDay: number;
-  };
-  alerts: Array<{
-    id: string;
-    level: 'info' | 'warn' | 'error';
-    message: string;
-    at: string;
-  }>;
-  recentReadings: Array<{
-    at: string;
-    sensorId: string;
-    moisture: number;
-  }>;
+  latest: Reading | null;
+  recent: Reading[];
 };
 
 export type IrrigateResponse = {

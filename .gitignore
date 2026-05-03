@@ -48,6 +48,11 @@ Thumbs.db
 hardware/firmware/**/include/secrets.h
 hardware/firmware/**/src/secrets.h
 
+# SQLite
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
 # Docker
 **/.docker-data/
 postgres-data/

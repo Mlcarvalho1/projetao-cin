@@ -1,8 +1,10 @@
-// AquaSense pico-dht v1 — DHT11 on GPIO15, WiFi via captive portal
+// AquaSense pico-dht v1 — DHT11 on GPIO15, HW-080 soil sensor on GPIO20/21
 //
 // First boot:  creates AP "AquaSense-XXXX", open http://192.168.4.1 to configure
 // Normal boot: loads config from flash, connects WiFi, POSTs every 30 s
 // Reset config: delete /cfg.txt via portal or reflash
+//
+// HW-080: GND→GND, VCC→3.3V, DO→GPIO20, AO→GPIO28 (ADC2)
 
 #include <Arduino.h>
 #include <DHT.h>
@@ -13,9 +15,17 @@
 #include <time.h>
 #include <LiquidCrystal_I2C.h>
 
-constexpr uint8_t  DHT_PIN     = 15;
-constexpr uint32_t INTERVAL_MS = 30'000;
-constexpr const char* API_URL  = "http://192.168.3.6:3000/readings";
+constexpr uint8_t  DHT_PIN      = 15;
+constexpr uint8_t  SOIL_DO_PIN  = 20;
+constexpr uint8_t  SOIL_AO_PIN  = 28;
+
+// Calibration: read serial and adjust these two values
+//   SOIL_DRY_RAW → probes in open air
+//   SOIL_WET_RAW → probes submerged in water
+constexpr int SOIL_DRY_RAW = 950;
+constexpr int SOIL_WET_RAW = 200;
+constexpr uint32_t INTERVAL_MS  = 30'000;
+constexpr const char* API_URL   = "http://192.168.3.8:3000/readings";
 
 LiquidCrystal_I2C lcd(0x27,16,2);
 
@@ -174,14 +184,25 @@ static void isoNow(char* buf, size_t n) {
 static DHT      dht(DHT_PIN, DHT11);
 static uint32_t seq = 0;
 
-static void postReading(float humidity, float tempC) {
+// Maps raw ADC to 0-100% using calibrated dry/wet endpoints
+static int soilPct(int raw) {
+    int clamped = constrain(raw, SOIL_WET_RAW, SOIL_DRY_RAW);
+    return map(clamped, SOIL_DRY_RAW, SOIL_WET_RAW, 0, 100);
+}
+
+static void postReading(float humidity, float tempC, bool soilWet, int soilRaw) {
     char ts[32];
     isoNow(ts, sizeof(ts));
 
-    char body[192];
+    int  moistPct   = soilPct(soilRaw);
+    const char* soilLabel = soilWet ? "wet" : "dry";
+
+    char body[256];
     snprintf(body, sizeof(body),
-        "{\"device_id\":\"%s\",\"humidity\":%.1f,\"temperature_c\":%.1f,\"ts\":\"%s\"}",
-        cfg.device_id, humidity, tempC, ts);
+        "{\"device_id\":\"%s\",\"humidity\":%.1f,\"temperature_c\":%.1f"
+        ",\"soil_wet\":%s,\"soil_moisture_pct\":%d,\"ts\":\"%s\"}",
+        cfg.device_id, humidity, tempC,
+        soilWet ? "true" : "false", moistPct, ts);
 
     HTTPClient http;
     http.begin(API_URL);
@@ -189,14 +210,17 @@ static void postReading(float humidity, float tempC) {
     int status = http.POST(body);
     http.end();
 
+    // Row 0: "H:75.4% T:27.7C"
+    // Row 1: "dry  0% HTTP:201"
     lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.printf("H: %.1f%%", humidity);
-    lcd.setCursor(0,1);
-    lcd.printf("T: %.1fC", tempC);
+    lcd.setCursor(0, 0);
+    lcd.printf("H:%.1f%% T:%.1fC", humidity, tempC);
+    lcd.setCursor(0, 1);
+    lcd.printf("%-3s%3d%% HTTP:%3d", soilLabel, moistPct, status);
 
-    Serial.printf("[%s] seq=%u  h=%.1f%%  t=%.1f°C  ts=%s  → HTTP %d\n",
-        status == 201 ? "ok" : "err", seq++, humidity, tempC, ts, status);
+    Serial.printf("[%s] seq=%u  h=%.1f%%  t=%.1f°C  soil=%s(%d%%)  raw=%d  ts=%s  → HTTP %d\n",
+        status == 201 ? "ok" : "err", seq++,
+        humidity, tempC, soilLabel, moistPct, soilRaw, ts, status);
 }
 
 // ─── Utils ────────────────────────────────────────────────────────────────
@@ -212,37 +236,61 @@ bool i2CAddrTest(uint8_t addr) {
 
 // ─── Arduino entry points ─────────────────────────────────────────────────
 
+static void lcdStatus(const char* line1, const char* line2) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(line1);
+    lcd.setCursor(0, 1);
+    lcd.print(line2);
+}
+
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Serial.println("\naquasense pico-dht v1 — GPIO15 DHT11");
 
     dht.begin();
-    loadConfig();
+    pinMode(SOIL_DO_PIN, INPUT);
 
     if (!i2CAddrTest(0x27)) {
         lcd = LiquidCrystal_I2C(0x3F, 16, 2);
     }
-    lcd.setCursor(0,0);
-    lcd.init();                     // LCD driver initialization
+    lcd.init();
     lcd.backlight();
-    lcd.print("AquaSense v1");
-    lcd.setCursor(0,1);
-    lcd.print("Booting...");
+
+    lcdStatus("AquaSense v1", "Loading cfg...");
+    loadConfig();
 
     if (!cfg_valid) {
+        lcdStatus("AquaSense v1", "No cfg: portal");
         Serial.println("[boot] no config found — starting provisioning portal");
-        startPortal();  // blocks until user saves config and device restarts
+        startPortal();
     }
 
+    lcdStatus("AquaSense v1", "Cfg: ok");
+    delay(600);
+
+    char wifiLine[17];
+    snprintf(wifiLine, sizeof(wifiLine), "WiFi: %-10s", cfg.ssid);
+    lcdStatus("AquaSense v1", wifiLine);
+
     if (!connectWiFi()) {
+        lcdStatus("AquaSense v1", "WiFi: failed");
+        delay(1000);
         Serial.println("[boot] WiFi failed — clearing config and re-provisioning");
         LittleFS.begin();
         LittleFS.remove("/cfg.txt");
         startPortal();
     }
 
+    lcdStatus("AquaSense v1", "WiFi: ok");
+    delay(600);
+
+    lcdStatus("AquaSense v1", "NTP: syncing...");
     syncNTP();
+    lcdStatus("AquaSense v1", "NTP: ok");
+    delay(600);
+
     delay(2000);  // DHT settling time after power-on
 }
 
@@ -250,18 +298,22 @@ void loop() {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
 
+    // HW-080: DO is LOW when soil is moist (conductivity pulls output down)
+    bool  soilWet = (digitalRead(SOIL_DO_PIN) == LOW);
+    int   soilRaw = analogRead(SOIL_AO_PIN);  // 0-4095 on GPIO28 (ADC2)
+
     if (isnan(h) || isnan(t)) {
         lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print("Read error");
+        lcd.setCursor(0, 0);
+        lcd.print("DHT read error");
         Serial.println("[dht] read error (checksum/timeout) — retrying next cycle");
     } else if (h < 0.0f || h > 100.0f || t < 0.0f || t > 50.0f) {
         lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print("Sensor error");
+        lcd.setCursor(0, 0);
+        lcd.print("DHT out of range");
         Serial.printf("[dht] out-of-range h=%.1f t=%.1f — wiring issue?\n", h, t);
     } else {
-        postReading(h, t);
+        postReading(h, t, soilWet, soilRaw);
     }
 
     delay(INTERVAL_MS);
